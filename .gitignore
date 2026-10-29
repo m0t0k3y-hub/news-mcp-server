@@ -26,9 +26,6 @@ env/
 venv/
 ENV/
 
-# uv
-uv.lock
-
 # Environment Variables & Secrets
 .env
 .env.*
