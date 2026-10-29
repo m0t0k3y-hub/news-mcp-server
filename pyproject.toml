@@ -46,6 +46,9 @@ select = [
 ]
 ignore = []
 
+[tool.ruff.lint.isort]
+known-first-party = ["news_mcp_server"]
+
 # --- Pytest 設定 ---
 [tool.pytest.ini_options]
 minversion = "8.0"
