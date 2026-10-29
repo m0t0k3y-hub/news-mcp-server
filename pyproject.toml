@@ -13,6 +13,9 @@ dependencies = [
     "pydantic>=2.0.0",
 ]
 
+[project.scripts]
+news-mcp-server = "news_mcp_server.__main__:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
