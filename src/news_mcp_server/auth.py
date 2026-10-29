@@ -21,6 +21,8 @@ class BearerAuthMiddleware:
         token: str,
         public_paths: Iterable[str] = DEFAULT_PUBLIC_PATHS,
     ) -> None:
+        if not token:
+            raise ValueError("Auth token must not be empty.")
         self.app = app
         self._expected = f"Bearer {token}".encode()
         self._public_paths = frozenset(public_paths)
