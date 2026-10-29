@@ -200,21 +200,15 @@ def test_health_does_not_require_auth(http_client: TestClient) -> None:
     assert response.json() == {"status": "ok"}
 
 
-@pytest.mark.parametrize(
-    "authorization",
-    [None, "Bearer wrong-token", f"Basic {AUTH_TOKEN}", AUTH_TOKEN],
-)
-def test_mcp_endpoint_rejects_missing_or_invalid_token(
-    http_client: TestClient, authorization: str | None
-) -> None:
-    headers = dict(MCP_HEADERS)
-    if authorization is not None:
-        headers["Authorization"] = authorization
-
-    response = http_client.post("/mcp", json=INITIALIZE_REQUEST, headers=headers)
+# Token validation details are covered in test_auth.py; this only checks the wiring.
+def test_mcp_endpoint_requires_token(http_client: TestClient) -> None:
+    response = http_client.post(
+        "/mcp",
+        json=INITIALIZE_REQUEST,
+        headers={**MCP_HEADERS, "Authorization": "Bearer wrong-token"},
+    )
 
     assert response.status_code == 401
-    assert response.headers["WWW-Authenticate"].startswith("Bearer")
 
 
 def test_mcp_endpoint_accepts_valid_token(http_client: TestClient) -> None:
