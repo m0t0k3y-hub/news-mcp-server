@@ -201,6 +201,10 @@ def create_app(settings: Settings) -> Starlette:
     # Stateless + JSON responses so any replica can serve any request (Cloud Run / Render).
     # DNS rebinding protection is unnecessary here: every request is bearer-authenticated.
     app = mcp.streamable_http_app(stateless_http=True, json_response=True, host=settings.host)
+    # Legacy SSE transport (GET /sse + POST /messages/) for clients without Streamable HTTP.
+    # SSE sessions live in process memory, so it only works with a single replica.
+    sse_app = mcp.sse_app(sse_path="/sse", message_path="/messages/", host=settings.host)
+    app.router.routes.extend(sse_app.routes)
     app.router.routes.append(Route("/health", health, methods=["GET"]))
     app.add_middleware(BearerAuthMiddleware, token=settings.auth_token.get_secret_value())
 
