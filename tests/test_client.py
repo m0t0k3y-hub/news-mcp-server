@@ -4,6 +4,7 @@ from typing import Any
 import httpx
 import pytest
 import respx
+
 from news_mcp.client import (
     NewsApiAuthenticationError,
     NewsApiClient,
