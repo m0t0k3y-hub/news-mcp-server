@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from news_mcp.client import (
+from news_mcp_server.client import (
     NewsApiAuthenticationError,
     NewsApiClient,
     NewsApiError,
