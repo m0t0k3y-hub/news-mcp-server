@@ -10,7 +10,11 @@ dependencies = [
     "starlette>=0.38.0",
     "uvicorn>=0.30.0",
     "pydantic-settings>=2.0.0",
+    "pydantic>=2.0.0",
 ]
+
+[project.scripts]
+news-mcp-server = "news_mcp_server.__main__:main"
 
 [dependency-groups]
 dev = [
@@ -42,11 +46,15 @@ select = [
 ]
 ignore = []
 
+[tool.ruff.lint.isort]
+known-first-party = ["news_mcp_server"]
+
 # --- Pytest 設定 ---
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 pythonpath = ["src"]
 
 # --- Mypy 設定 ---
