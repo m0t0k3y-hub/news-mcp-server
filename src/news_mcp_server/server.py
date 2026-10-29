@@ -1,6 +1,5 @@
 """MCP server exposing News API tools over Streamable HTTP."""
 
-import hmac
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -15,8 +14,8 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
-from starlette.types import ASGIApp, Receive, Scope, Send
 
+from news_mcp_server.auth import BearerAuthMiddleware
 from news_mcp_server.client import (
     Category,
     NewsApiAuthenticationError,
@@ -32,7 +31,6 @@ from news_mcp_server.config import Settings
 logger = logging.getLogger(__name__)
 
 SERVER_NAME = "news-mcp-server"
-PUBLIC_PATHS = frozenset({"/health"})
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=True)
 
@@ -195,29 +193,6 @@ def create_mcp_server(news_client: NewsApiClient) -> MCPServer:
 
 async def health(request: Request) -> Response:
     return JSONResponse({"status": "ok"})
-
-
-class BearerAuthMiddleware:
-    """Require `Authorization: Bearer <token>` on every HTTP request except public paths."""
-
-    def __init__(self, app: ASGIApp, token: str) -> None:
-        self.app = app
-        self._expected = f"Bearer {token}".encode()
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http" or scope["path"] in PUBLIC_PATHS:
-            await self.app(scope, receive, send)
-            return
-        provided = dict(scope["headers"]).get(b"authorization", b"")
-        if not hmac.compare_digest(provided, self._expected):
-            response = JSONResponse(
-                {"error": "unauthorized"},
-                status_code=401,
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-            await response(scope, receive, send)
-            return
-        await self.app(scope, receive, send)
 
 
 def create_app(settings: Settings) -> Starlette:
